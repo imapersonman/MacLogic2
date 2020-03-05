@@ -80,14 +80,15 @@ case class CLIExpectTactic(proof: Proof) extends CLIMode {
   private def parseTactic(str: String): Either[String, Tactic] = str match {
     case "->I" => Right(ImpI)
     case "->E" => Right(ImpE)
-    case "~I" => Right(NotI)
-    case "~E" => Right(NotE)
+    case "~I" | "-I" => Right(NotI)
+    case "~E" | "-E" => Right(NotE)
     case "&I" => Right(AndI)
     case "&E" => Right(AndE)
     case "\\/Il" => Right(OrILeft)
     case "\\/Ir" => Right(OrIRight)
     case "\\/E" => Right(OrE)
     case "close" => Right(Close)
+    case "DN" => Right(DN)
     case _ => Left("'" + str + "' is not a recognized Tactic")
   }
 }
@@ -98,6 +99,14 @@ case class CLIExpectExpr(proof: Proof, tactic: Tactic) extends CLIMode {
     case Left(error) => CLIError(error.message, this)
     case Right(expr) =>
       val modProof = this.proof.useTactic(this.tactic, expr)
+      modProof match {
+        case OngoingProof(_, _) =>
+          if (modProof.canClose) CLIFinished(modProof.finish)
+          else CLIExpectTactic(modProof)
+        case ErrorProof(error, _) => CLIError(error.message, this)
+        case FinishedProof(_) => throw new UnsupportedOperationException(
+            "Currently not handling case where FinishedProof is returned from useTactic")
+      }
       if (modProof.canClose)
         CLIFinished(modProof.finish)
       else

@@ -15,6 +15,10 @@ class ExprParserTest extends FunSuite {
     assert(ExprParser.parse("(~(A))") == Right(Not(A)))
     assert(ExprParser.parse("~A -> A") == Right(Imp(Not(A), A)))
     assert(ExprParser.parse("(~A & B) ->(A\\/ B)") == Right(Imp(And(Not(SL("A")), SL("B")), Or(SL("A"), SL("B")))))
+    assert(ExprParser.parse("---A") == Right(Not(Not(Not(A)))))
+    assert(ExprParser.parse("\\F") == Right(Absurd))
+    assert(ExprParser.parse("Absurd") == Right(Absurd))
+    assert(ExprParser.parse("--Absurd -> (\\F)") == Right(Imp(Not(Not(Absurd)), Absurd)))
   }
 
   test("ExprParser.parseList") {

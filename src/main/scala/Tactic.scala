@@ -39,6 +39,19 @@ trait EliminationTactic extends Tactic {
   protected def applySub(source: Sequent, expr: Expr): ProblemOrError
 }
 
+//  *L |- A
+// -----------
+//  *L |- ~~A
+object DN extends Tactic {
+  override def apply(source: Sequent, expr: Expr): ProblemOrError =
+    if (source.rhs == expr)
+      SplitProblem(source, DN, expr, Seq(OpenProblem(source.replaceRhs(Not(Not(expr))))))
+    else
+      Error("Given Expr must equal rhs to apply DN")
+
+  override def toString: String = "DN"
+}
+
 //  *L |- A & B
 // -----------------------------
 //  *L |- A     *L |- B

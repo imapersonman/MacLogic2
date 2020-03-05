@@ -112,6 +112,8 @@ object ProblemExamples {
     OpenProblem(SequentExamples.postNotESequent3_2)))
   val postNotEWrongConnectiveError: Error = Error("Main connective of ~E must be ~")
 
+
+
   // Completed problems
   private val R = SL("R")
   private val S = SL("S")

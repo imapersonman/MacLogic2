@@ -177,4 +177,24 @@ class ProblemTest extends FunSuite {
       ProblemExamples.postNotEWrongConnectiveError ==
       OpenProblem(SequentExamples.preOrESequent1).useTactic(NotE, Or(B, A)))
   }
+
+  test("Problem.useTactic DN") {
+    val preDNSequent1 = Sequent(Seq(), A)
+    val preDNSequent2 = Sequent(Seq(B), Not(A))
+    val preDNSequent3 = Sequent(Seq(B, And(A, B)), Not(Not(A)))
+    val postDNSequent1 = Sequent(Seq(), Not(Not(A)))
+    val postDNSequent2 = Sequent(Seq(B), Not(Not(Not(A))))
+    val postDNSequent3 = Sequent(Seq(B, And(A, B)), Not(Not(Not(Not(A)))))
+    val preDNProblem1: Problem = OpenProblem(preDNSequent1)
+    val preDNProblem2: Problem = OpenProblem(preDNSequent2)
+    val preDNProblem3: Problem = OpenProblem(preDNSequent3)
+    val postDNProblem1: Problem = SplitProblem(preDNSequent1, DN, A, Seq(OpenProblem(postDNSequent1)))
+    val postDNProblem2: Problem = SplitProblem(preDNSequent2, DN, Not(A), Seq(OpenProblem(postDNSequent2)))
+    val postDNProblem3: Problem = SplitProblem(preDNSequent3, DN, Not(Not(A)), Seq(OpenProblem(postDNSequent3)))
+    val postDNProblem3Error: Error = Error("Given Expr must equal rhs to apply DN")
+    assert(postDNProblem1 == preDNProblem1.useTactic(DN, A))
+    assert(postDNProblem2 == preDNProblem2.useTactic(DN, Not(A)))
+    assert(postDNProblem3 == preDNProblem3.useTactic(DN, Not(Not(A))))
+    assert(postDNProblem3Error == preDNProblem3.useTactic(DN, Not(A)))
+  }
 }

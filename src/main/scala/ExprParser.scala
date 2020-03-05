@@ -2,9 +2,10 @@ import scala.util.parsing.combinator.RegexParsers
 
 object ExprParser extends RegexParsers {
   def sl: Parser[SL] = """[A-Z]+""".r ^^ { id => SL(id) }
-  def not: Parser[Expr] = "~" ~ factor ^^ { case _ ~ expr => Not(expr) }
+  def not: Parser[Expr] = ("~" | "-") ~ factor ^^ { case _ ~ expr => Not(expr) }
+  def absurd: Parser[Expr] = ("Absurd" | "\\F") ^^ (_ => Absurd)
   def nested: Parser[Expr] = "(" ~ expression ~ ")" ^^ { case _ ~ expr ~ _ => expr }
-  def factor: Parser[Expr] = ("Absurd" ^^ (_ => Absurd)) | sl | not | nested
+  def factor: Parser[Expr] = absurd | sl | not | nested
   def binOp: Parser[Expr] = makeBinOp("&", (lhs, rhs) => And(lhs, rhs)) |
       makeBinOp("\\/", (lhs, rhs) => Or(lhs, rhs)) |
       makeBinOp("->", (lhs, rhs) => Imp(lhs, rhs))
