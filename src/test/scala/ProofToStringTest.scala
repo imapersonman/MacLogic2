@@ -15,7 +15,7 @@ class ProofToStringTest extends FunSuite {
       "Using:-" +
         "\n(A & (B & C))" +
         "\n" +
-        "Derive:-" +
+        "\nDerive:-" +
         "\n(C & (B & A))" ==
       ProofToString.currentProblemToString(proof1))
 
@@ -30,7 +30,7 @@ class ProofToStringTest extends FunSuite {
         "\nA" +
         "\n(B & C)" +
         "\n" +
-        "Derive:-" +
+        "\nDerive:-" +
         "\n(C & (B & A))" ==
       ProofToString.currentProblemToString(proof2))
 
@@ -48,7 +48,7 @@ class ProofToStringTest extends FunSuite {
         "\nC" +
         "\nA" +
         "\n" +
-        "Derive:-" +
+        "\nDerive:-" +
         "\n(C & (B & A))" ==
       ProofToString.currentProblemToString(proof3))
 
@@ -70,7 +70,7 @@ class ProofToStringTest extends FunSuite {
         "\nC" +
         "\nA" +
         "\n" +
-        "Derive:-" +
+        "\nDerive:-" +
         "\n(B & A)" ==
       ProofToString.currentProblemToString(proof4))
 

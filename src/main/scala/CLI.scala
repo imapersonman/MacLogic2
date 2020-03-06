@@ -1,129 +1,74 @@
-import scala.io.StdIn.readLine
+import scala.swing._
+import scala.swing.event.ButtonClicked
 
-object CLI extends App {
-  var mode: CLIMode = CLIExpectPremises
-  while (!mode.isFinished) {
-    mode.display()
-    val input = readLine(mode.prompt)
-    mode = mode.next(input)
+class CLIFrame(input: TextField, output: TextArea, goButton: Button) extends Frame {
+  this.title = "MacLogic2 Command-Line"
+  this.preferredSize = new Dimension(800, 600)
+
+  private val inputPanel = new BorderPanel {
+    this.add(new Label("input"), BorderPanel.Position.West)
+    this.add(input, BorderPanel.Position.Center)
+    this.add(goButton, BorderPanel.Position.East)
   }
-  mode.display()
-}
 
-// Represents a mode of interaction for a command-line interface, specifically one for MacLogic's construction mode.
-sealed trait CLIMode {
-  // The CLIMode occurring after this one, depending on the given input String.
-  def next(input: String): CLIMode
-
-  // The string to display at the prompt to the user.
-  def prompt: String
-
-  // Does some side-effect stuff to show the mode to the user, or not in certain cases.
-  def display(): Unit
-
-  // Is this a CLIFinished?
-  def isFinished: Boolean = this match {
-    case CLIFinished(_) => true
-    case _ => false
+  this.contents = new BorderPanel {
+    this.add(new ScrollPane(output), BorderPanel.Position.Center)
+    this.add(inputPanel, BorderPanel.Position.South)
+    this.border = Swing.EmptyBorder(10, 10, 10, 10)
   }
+
+  this.input.requestFocusInWindow()
+  this.output.editable = false
+  this.defaultButton = this.goButton
 }
 
-// Represents a CLIMode that presents an error to the user.
-case class CLIError(message: String, nextMode: CLIMode) extends CLIMode {
-  override def next(input: String): CLIMode = this.nextMode
-  override def prompt: String = "Enter anything to proceed: "
-  override def display(): Unit = println("ERROR: " + this.message)
+class CurrentProblemFrame(textArea: TextArea) extends Frame {
+  this.title = "Current Problem"
+  this.preferredSize = new Dimension(200, 200)
+
+  this.contents = this.textArea
+  this.textArea.border = Swing.EmptyBorder(10, 10, 10, 10)
+  this.textArea.editable = false
 }
 
-// Represents the CLIMode which expects a list of premises to be inputted.
-case object CLIExpectPremises extends CLIMode {
-  def next(input: String): CLIMode = {
-    ExprParser.parseList(input) match {
-      case Left(error) => CLIError(error.message, this)
-      case Right(premises) => CLIExpectConclusion(premises)
+object WindowedController extends Reactor with App {
+  // setting up the CLI window.
+  val input: TextField = new TextField()
+  val output: TextArea = new TextArea { rows = 20; lineWrap = true; wordWrap = true }
+  val go: Button = new Button("Go")
+  val cli: CLIFrame = new CLIFrame(this.input, this.output, this.go)
+  this.cli.visible = true
+
+  // setting up the Current Problem window.
+  val currentProblemTextArea = new TextArea { rows = 20; lineWrap = true; wordWrap = true }
+  val currentProblemFrame = new CurrentProblemFrame(this.currentProblemTextArea)
+  this.currentProblemFrame.visible = true
+
+  this.listenTo(this.go)
+  this.reactions += {
+    case ButtonClicked(`go`) => this.goPressed()
+  }
+
+  private var currentMode: CLIMode = CLIExpectPremises
+  this.logToConsole(this.currentMode.output)
+  private def goPressed(): Unit = {
+    val input = this.input.text
+    this.input.text = ""
+    this.currentMode = this.handleNextModeOnInput(input)
+    this.logToConsole(this.currentMode.output)
+  }
+
+  private def handleNextModeOnInput(str: String): CLIMode = this.currentMode.next(str) match {
+    case mode: CLIExpectTactic => {
+      this.currentProblemTextArea.text = ProofToString.currentProblemToString(mode.proof)
+      mode
     }
-  }
-
-  override def prompt: String = "premises: "
-
-  override def display(): Unit =
-    println("Please enter a comma-separated list of premises, then a conclusion as prompted")
-}
-
-// Represents a CLIMode that expects a single conclusion to be inputted.
-case class CLIExpectConclusion(premises: List[Expr]) extends CLIMode {
-  def next(input: String): CLIMode =
-    if (input.isEmpty)
-      CLIError("Conclusion must be non-empty", this)
-    else ExprParser.parse(input) match {
-      case Left(error) => CLIError(error.message, this)
-      case Right(conclusion) => CLIExpectTactic(OngoingProof.start(Sequent(this.premises, conclusion)))
+    case CLIError(message, nextMode) => {
+      this.logToConsole(message)
+      nextMode
     }
-
-  override def prompt: String = "conclusion: "
-
-  override def display(): Unit = ()
-}
-
-// Represents a CLIMode that expects a tactic to be entered.
-case class CLIExpectTactic(proof: Proof) extends CLIMode {
-  def next(input: String): CLIMode = this.parseTactic(input) match {
-    case Left(errorMessage) => CLIError(errorMessage, this)
-    case Right(tactic) => CLIExpectExpr(this.proof, tactic)
+    case other => other
   }
 
-  override def prompt: String = "tactic: "
-
-  override def display(): Unit =
-    println(ProofToString.convert(this.proof) + "\n")
-
-  private def parseTactic(str: String): Either[String, Tactic] = str match {
-    case "->I" => Right(ImpI)
-    case "->E" => Right(ImpE)
-    case "~I" | "-I" => Right(NotI)
-    case "~E" | "-E" => Right(NotE)
-    case "&I" => Right(AndI)
-    case "&E" => Right(AndE)
-    case "\\/Il" => Right(OrILeft)
-    case "\\/Ir" => Right(OrIRight)
-    case "\\/E" => Right(OrE)
-    case "close" => Right(Close)
-    case "DN" => Right(DN)
-    case _ => Left("'" + str + "' is not a recognized Tactic")
-  }
-}
-
-// Represents a CLIMode that expects and Expr to be entered that is then used on a Proof with a Tactic.
-case class CLIExpectExpr(proof: Proof, tactic: Tactic) extends CLIMode {
-  def next(input: String): CLIMode = ExprParser.parse(input) match {
-    case Left(error) => CLIError(error.message, this)
-    case Right(expr) =>
-      val modProof = this.proof.useTactic(this.tactic, expr)
-      modProof match {
-        case OngoingProof(_, _) =>
-          if (modProof.canClose) CLIFinished(modProof.finish)
-          else CLIExpectTactic(modProof)
-        case ErrorProof(error, _) => CLIError(error.message, this)
-        case FinishedProof(_) => throw new UnsupportedOperationException(
-            "Currently not handling case where FinishedProof is returned from useTactic")
-      }
-      if (modProof.canClose)
-        CLIFinished(modProof.finish)
-      else
-        CLIExpectTactic(modProof)
-  }
-
-  override def prompt: String = "expression: "
-
-  override def display(): Unit = ()
-}
-
-// Represents the final mode of a CLI.
-case class CLIFinished(proof: FinishedProof) extends CLIMode {
-  override def next(input: String): CLIMode = throw new UnsupportedOperationException("CLIQuit does not have a next")
-
-  override def prompt: String = throw new UnsupportedOperationException("CLIQuit cannot be prompted")
-
-  override def display(): Unit =
-    println(ProofToString.convert(this.proof))
+  def logToConsole(str: String): Unit = this.output.text += str + "\n"
 }

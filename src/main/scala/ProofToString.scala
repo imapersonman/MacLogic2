@@ -9,7 +9,7 @@ object ProofToString {
       val currentProblem = problem.select(selector)
       val lhsString = currentProblem.sequent.lhs.foldLeft("")((acc, expr) => acc + "\n" + expr.toString)
       val rhsString = currentProblem.sequent.rhs.toString
-      "Using:-" + lhsString + "\nDerive:-\n" + rhsString
+      "Using:-" + lhsString + "\n\nDerive:-\n" + rhsString
     case ErrorProof(error, proof) => error.toString
     case FinishedProof(problem) => "Finished"
   }
