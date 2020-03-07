@@ -85,10 +85,10 @@ object AndE extends EliminationTactic {
 object OrILeft extends IntroductionTactic {
   override protected def applySub(source: Sequent, expr: Expr): ProblemOrError = expr match {
     case Or(lhs, _) => SplitProblem(source, OrILeft, expr, Seq(OpenProblem(source.replaceRhs(lhs))))
-    case _ => Error("Main connective of \\/Il Expr must be \\/")
+    case _ => Error("Main connective of \u2228Il Expr must be \u2228")
   }
 
-  override def toString: String = "\\/Il"
+  override def toString: String = "\u2228Il"
 }
 
 //  *L |- A \/ B
@@ -97,10 +97,10 @@ object OrILeft extends IntroductionTactic {
 object OrIRight extends IntroductionTactic {
   override protected def applySub(source: Sequent, expr: Expr): ProblemOrError = expr match {
     case Or(_, rhs) => SplitProblem(source, OrIRight, expr, Seq(OpenProblem(source.replaceRhs(rhs))))
-    case _ => Error("Main connective of \\/Ir Expr must be \\/")
+    case _ => Error("Main connective of \u2228Ir Expr must be \u2228")
   }
 
-  override def toString: String = "\\/Ir"
+  override def toString: String = "\u2228Ir"
 }
 
 //  *L, A \/ B |- *R
@@ -111,10 +111,10 @@ object OrE extends EliminationTactic {
     case Or(lhs, rhs) => SplitProblem(source, OrE, expr, Seq(
         OpenProblem(source.removeFromLhs(expr).addToLhs(lhs)),
         OpenProblem(source.removeFromLhs(expr).addToLhs(rhs))))
-    case _ => Error("Main connective of \\/E Expr must be \\/")
+    case _ => Error("Main connective of \u2228E Expr must be \u2228")
   }
 
-  override def toString: String = "\\/E"
+  override def toString: String = "\u2228E"
 }
 
 //  *L |- A -> B
@@ -124,10 +124,10 @@ object ImpI extends IntroductionTactic {
   override protected def applySub(source: Sequent, expr: Expr): ProblemOrError = expr match {
     case Imp(lhs, rhs) => SplitProblem(source, ImpI, expr, Seq(
       OpenProblem(source.addToLhs(lhs).replaceRhs(rhs))))
-    case _ => Error("Main connective of ->I must be ->")
+    case _ => Error("Main connective of \u2192I must be \u2192")
   }
 
-  override def toString: String = "->I"
+  override def toString: String = "\u2192I"
 }
 
 //  *L, A -> B |- *R
@@ -138,10 +138,10 @@ object ImpE extends EliminationTactic {
     case Imp(lhs, rhs) => SplitProblem(source, ImpE, expr, Seq(
       OpenProblem(source.replaceRhs(lhs)),
       OpenProblem(source.removeFromLhs(expr).addToLhs(rhs))))
-    case _ => Error("Main connective of ->E must be ->")
+    case _ => Error("Main connective of \u2192E must be \u2192")
   }
 
-  override def toString: String = "->E"
+  override def toString: String = "\u2192E"
 }
 
 //  *L |- ~A

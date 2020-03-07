@@ -45,8 +45,8 @@ object ProblemExamples {
     OpenProblem(SequentExamples.postOrIRightSequent2)))
   val postOrIRightProblem3: Problem = SplitProblem(SequentExamples.preOrISequent3, OrIRight, Or(A, B), Seq(
     OpenProblem(SequentExamples.postOrIRightSequent3)))
-  val postOrILeftWrongConnectiveError: Error = Error("Main connective of \\/Il Expr must be \\/")
-  val postOrIRightWrongConnectiveErrorProblem: Error = Error("Main connective of \\/Ir Expr must be \\/")
+  val postOrILeftWrongConnectiveError: Error = Error("Main connective of \u2228Il Expr must be \u2228")
+  val postOrIRightWrongConnectiveErrorProblem: Error = Error("Main connective of \u2228Ir Expr must be \u2228")
 
   val preOrEProblem1: Problem = OpenProblem(SequentExamples.preOrESequent1)
   val preOrEProblem2: Problem = OpenProblem(SequentExamples.preOrESequent2)
@@ -60,7 +60,7 @@ object ProblemExamples {
   val postOrEProblem3: Problem = SplitProblem(SequentExamples.preOrESequent3, OrE, Or(B, A), Seq(
     OpenProblem(SequentExamples.postOrESequent3_1),
     OpenProblem(SequentExamples.postOrESequent3_2)))
-  val postOrEWrongConnectiveError: Error = Error("Main connective of \\/E Expr must be \\/")
+  val postOrEWrongConnectiveError: Error = Error("Main connective of \u2228E Expr must be \u2228")
 
   val preImpIProblem1: Problem = OpenProblem(SequentExamples.preImpISequent1)
   val preImpIProblem2: Problem = OpenProblem(SequentExamples.preImpISequent2)
@@ -71,7 +71,7 @@ object ProblemExamples {
     OpenProblem(SequentExamples.postImpISequent2)))
   val postImpIProblem3: Problem = SplitProblem(SequentExamples.preImpISequent3, ImpI, Imp(A, B), Seq(
     OpenProblem(SequentExamples.postImpISequent3)))
-  val postImpIWrongConnectiveError: Error = Error("Main connective of ->I must be ->")
+  val postImpIWrongConnectiveError: Error = Error("Main connective of \u2192I must be \u2192")
 
   val preImpEProblem1: Problem = OpenProblem(SequentExamples.preImpESequent1)
   val preImpEProblem2: Problem = OpenProblem(SequentExamples.preImpESequent2)
@@ -85,7 +85,7 @@ object ProblemExamples {
   val postImpEProblem3: Problem = SplitProblem(SequentExamples.preImpESequent3, ImpE, Imp(A, B), Seq(
     OpenProblem(SequentExamples.postImpESequent3_1),
     OpenProblem(SequentExamples.postImpESequent3_2)))
-  val postImpEWrongConnectiveError: Error = Error("Main connective of ->E must be ->")
+  val postImpEWrongConnectiveError: Error = Error("Main connective of \u2192E must be \u2192")
 
   val preNotIProblem1: Problem = OpenProblem(SequentExamples.preNotISequent1)
   val preNotIProblem2: Problem = OpenProblem(SequentExamples.preNotISequent2)
@@ -111,8 +111,6 @@ object ProblemExamples {
     OpenProblem(SequentExamples.postNotESequent3_1),
     OpenProblem(SequentExamples.postNotESequent3_2)))
   val postNotEWrongConnectiveError: Error = Error("Main connective of ~E must be ~")
-
-
 
   // Completed problems
   private val R = SL("R")

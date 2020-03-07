@@ -6,24 +6,10 @@ class CLIFrame(input: TextField, output: TextArea, eventHandler: WindowEventHand
   this.preferredSize = new Dimension(800, 200)
 
   private val inputPanel = new BoxPanel(Orientation.Horizontal)
-
-  private val restart: Button = new Button("Restart")
-  this.listenTo(this.restart)
-  this.reactions += { case ButtonClicked(`restart`) => this.eventHandler.restartPressed() }
-  this.inputPanel.contents += this.restart
-
-  private val back: Button = new Button("Back")
-  this.listenTo(this.back)
-  this.reactions += { case ButtonClicked(`back`) => this.eventHandler.backPressed() }
-  this.inputPanel.contents += this.back
-
-  this.inputPanel.contents += new Label("input ")
+  this.addButtonToInputPanel("Restart", _ => this.eventHandler.restartPressed())
+  this.addButtonToInputPanel("Back", _ => this.eventHandler.backPressed())
   this.inputPanel.contents += this.input
-
-  private val go: Button = new Button("Go")
-  this.listenTo(this.go)
-  this.reactions += { case ButtonClicked(`go`) => this.eventHandler.goPressed() }
-  this.inputPanel.contents += this.go
+  this.defaultButton = this.addButtonToInputPanel("Go", _ => this.eventHandler.goPressed())
 
   this.contents = new BorderPanel {
     this.add(new ScrollPane(output), BorderPanel.Position.Center)
@@ -36,14 +22,21 @@ class CLIFrame(input: TextField, output: TextArea, eventHandler: WindowEventHand
 
   this.input.requestFocusInWindow()
   this.output.editable = false
-  this.defaultButton = this.go
+
+  def addButtonToInputPanel(name: String, effect: Unit => Unit): Button = {
+    val button = new Button(name)
+    this.listenTo(button)
+    this.reactions += { case ButtonClicked(`button`) => effect.apply() }
+    this.inputPanel.contents += button
+    button
+  }
 }
 
 class CurrentProblemFrame(textArea: TextArea) extends Frame {
   this.title = "Current Problem"
   this.preferredSize = new Dimension(200, 200)
 
-  this.contents = this.textArea
+  this.contents = new ScrollPane(this.textArea)
   this.textArea.border = Swing.EmptyBorder(10, 10, 10, 10)
   this.textArea.editable = false
 }
@@ -100,16 +93,16 @@ object WindowedController extends WindowEventHandler {
   private var currentMode: CLIMode = CLIExpectPremises
   private val ui = new MacLogicUi(this)
 
+  def start(): Unit = {
+    this.ui.start()
+    this.ui.logToConsole(this.currentMode.output)
+  }
+
   override def goPressed(): Unit = {
     val input = this.ui.input.text
     this.ui.input.text = ""
     this.modeHistory = this.currentMode +: this.modeHistory
     this.setCurrentMode(this.handleNextModeOnInput(input))
-  }
-
-  def start(): Unit = {
-    this.ui.start()
-    this.ui.logToConsole(this.currentMode.output)
   }
 
   override def backPressed(): Unit = {
