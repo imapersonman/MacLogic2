@@ -52,7 +52,6 @@ class ProofToStringTest extends FunSuite {
         "\n(C & (B & A))" ==
       ProofToString.currentProblemToString(proof3))
 
-
     val proof4 = proof3.useTactic(AndI, And(C, And(B, A))).useTactic(Close, C)
     assert(
       "?  (A & (B & C)) \u22A2 (C & (B & A))" +
