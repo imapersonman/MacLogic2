@@ -13,11 +13,11 @@ case class And(lhs: Expr, rhs: Expr) extends Expr {
 }
 
 case class Or(lhs: Expr, rhs: Expr) extends Expr {
-  override def toString: String = "(" + this.lhs.toString + " \\/ " + this.rhs.toString + ")"
+  override def toString: String = "(" + this.lhs.toString + " \u2228 " + this.rhs.toString + ")"
 }
 
 case class Imp(lhs: Expr, rhs: Expr) extends Expr {
-  override def toString: String = "(" + this.lhs.toString + " -> " + this.rhs.toString + ")"
+  override def toString: String = "(" + this.lhs.toString + " \u2192 " + this.rhs.toString + ")"
 }
 
 case object Absurd extends Expr {

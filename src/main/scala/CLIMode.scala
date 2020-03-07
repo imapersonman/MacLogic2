@@ -6,7 +6,10 @@ sealed trait CLIMode {
   // The string to display at the prompt to the user.
   def prompt: String
 
+  // The String to display which represents this CLIMode.
   def output: String
+
+  def updateUi(ui: MacLogicUi): Unit = ()
 
   // Is this a CLIFinished?
   def isFinished: Boolean = this match {
@@ -31,6 +34,11 @@ case object CLIExpectPremises extends CLIMode {
     }
   }
 
+  override def updateUi(ui: MacLogicUi): Unit = {
+    ui.problemTreeArea.text = ""
+    ui.currentProblemTextArea.text = ""
+  }
+
   override def prompt: String = "premises: "
 
   override def output: String = "Please enter a comma-separated list of premises"
@@ -46,10 +54,15 @@ case class CLIExpectConclusion(premises: List[Expr]) extends CLIMode {
       case Right(conclusion) => CLIExpectTactic(OngoingProof.start(Sequent(this.premises, conclusion)))
     }
 
+  override def updateUi(ui: MacLogicUi): Unit = {
+    ui.currentProblemTextArea.text = ""
+    ui.problemTreeArea.text = ""
+  }
+
   override def prompt: String = "conclusion: "
 
   override def output: String =
-    "\nPremises: " + this.premises.mkString(", ") +
+    "Premises: " + this.premises.mkString(", ") +
       "\nPlease enter conclusion"
 }
 
@@ -62,7 +75,14 @@ case class CLIExpectTactic(proof: Proof) extends CLIMode {
 
   override def prompt: String = "tactic: "
 
-  override def output: String = ProofToString.convert(this.proof) + "\nEnter tactic"
+  override def updateUi(ui: MacLogicUi): Unit = {
+    ui.problemTreeArea.text = ProofToString.derivationToString(this.proof)
+    ui.currentProblemTextArea.text = ProofToString.currentProblemToString(this.proof)
+  }
+
+  override def output: String =
+    "Now proving " + this.proof.currentProblem.sequent.toString +
+      "\nEnter tactic"
 
   private def parseTactic(str: String): Either[String, Tactic] = str match {
     case "->I" => Right(ImpI)
@@ -106,6 +126,9 @@ case class CLIFinished(proof: FinishedProof) extends CLIMode {
   override def next(input: String): CLIMode = throw new UnsupportedOperationException("CLIQuit does not have a next")
 
   override def prompt: String = throw new UnsupportedOperationException("CLIQuit cannot be prompted")
+
+  override def updateUi(ui: MacLogicUi): Unit =
+    ui.problemTreeArea.text = ProofToString.derivationToString(this.proof)
 
   override def output: String = ProofToString.convert(this.proof)
 }

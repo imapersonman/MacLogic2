@@ -14,5 +14,5 @@ case class Sequent(lhs: Seq[Expr], rhs: Expr) {
   // Does the rhs of this sequent contain the given Expr?
   def rhsContains(expr: Expr): Boolean = this.rhs == expr
 
-  override def toString: String = this.lhs.mkString(", ") + " |- " + this.rhs.toString
+  override def toString: String = this.lhs.mkString(", ") + " \u22A2 " + this.rhs.toString
 }

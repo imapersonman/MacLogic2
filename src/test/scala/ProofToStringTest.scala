@@ -9,7 +9,7 @@ class ProofToStringTest extends FunSuite {
     val goal = Sequent(Seq(And(A, And(B, C))), And(C, And(B, A)))
     val proof1 = OngoingProof.start(goal)
     assert(
-      "?  (A & (B & C)) |- (C & (B & A)) is the current problem" ==
+      "?  (A & (B & C)) \u22A2 (C & (B & A)) is the current problem" ==
       ProofToString.derivationToString(proof1))
     assert(
       "Using:-" +
@@ -21,9 +21,9 @@ class ProofToStringTest extends FunSuite {
 
     val proof2 = proof1.useTactic(AndE, And(A, And(B, C)))
     assert(
-      "?  (A & (B & C)) |- (C & (B & A))" +
+      "?  (A & (B & C)) \u22A2 (C & (B & A))" +
         "\n-Using tactic for &E" +
-        "\n-?  A, (B & C) |- (C & (B & A)) is the current problem" ==
+        "\n-?  A, (B & C) \u22A2 (C & (B & A)) is the current problem" ==
       ProofToString.derivationToString(proof2))
     assert(
       "Using:-" +
@@ -36,11 +36,11 @@ class ProofToStringTest extends FunSuite {
 
     val proof3 = proof2.useTactic(AndE, And(B, C))
     assert(
-      "?  (A & (B & C)) |- (C & (B & A))" +
+      "?  (A & (B & C)) \u22A2 (C & (B & A))" +
         "\n-Using tactic for &E" +
-        "\n-?  A, (B & C) |- (C & (B & A))" +
+        "\n-?  A, (B & C) \u22A2 (C & (B & A))" +
         "\n--Using tactic for &E" +
-        "\n--?  B, C, A |- (C & (B & A)) is the current problem" ==
+        "\n--?  B, C, A \u22A2 (C & (B & A)) is the current problem" ==
       ProofToString.derivationToString(proof3))
     assert(
       "Using:-" +
@@ -55,14 +55,14 @@ class ProofToStringTest extends FunSuite {
 
     val proof4 = proof3.useTactic(AndI, And(C, And(B, A))).useTactic(Close, C)
     assert(
-      "?  (A & (B & C)) |- (C & (B & A))" +
+      "?  (A & (B & C)) \u22A2 (C & (B & A))" +
         "\n-Using tactic for &E" +
-        "\n-?  A, (B & C) |- (C & (B & A))" +
+        "\n-?  A, (B & C) \u22A2 (C & (B & A))" +
         "\n--Using tactic for &E" +
-        "\n--?  B, C, A |- (C & (B & A))" +
+        "\n--?  B, C, A \u22A2 (C & (B & A))" +
         "\n---Using tactic for &I" +
-        "\n---?  B, C, A |- C  \u25a0" +
-        "\n---?  B, C, A |- (B & A) is the current problem" ==
+        "\n---?  B, C, A \u22A2 C  \u25a0" +
+        "\n---?  B, C, A \u22A2 (B & A) is the current problem" ==
       ProofToString.derivationToString(proof4))
     assert(
       "Using:-" +
@@ -76,17 +76,17 @@ class ProofToStringTest extends FunSuite {
 
     val proof5 = proof4.useTactic(AndI, And(B, A)).useTactic(Close, B).useTactic(Close, A).finish
     assert(
-      "?  (A & (B & C)) |- (C & (B & A))" +
+      "?  (A & (B & C)) \u22A2 (C & (B & A))" +
         "\n-Using tactic for &E" +
-        "\n-?  A, (B & C) |- (C & (B & A))" +
+        "\n-?  A, (B & C) \u22A2 (C & (B & A))" +
         "\n--Using tactic for &E" +
-        "\n--?  B, C, A |- (C & (B & A))" +
+        "\n--?  B, C, A \u22A2 (C & (B & A))" +
         "\n---Using tactic for &I" +
-        "\n---?  B, C, A |- C  \u25A0" +
-        "\n---?  B, C, A |- (B & A)" +
+        "\n---?  B, C, A \u22A2 C  \u25A0" +
+        "\n---?  B, C, A \u22A2 (B & A)" +
         "\n----Using tactic for &I" +
-        "\n----?  B, C, A |- B  \u25A0" +
-        "\n----?  B, C, A |- A  \u25A0" ==
+        "\n----?  B, C, A \u22A2 B  \u25A0" +
+        "\n----?  B, C, A \u22A2 A  \u25A0" ==
       ProofToString.derivationToString(proof5))
     assert(
       "Finished" ==
