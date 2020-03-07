@@ -1,25 +1,29 @@
 import scala.swing._
-import scala.swing.event.{ButtonClicked, Key, KeyPressed, KeyReleased}
+import scala.swing.event.{ButtonClicked, Key, KeyPressed}
 
 class CLIFrame(input: TextField, output: TextArea, eventHandler: WindowEventHandler) extends Frame {
   this.title = "MacLogic2 Command-Line"
   this.preferredSize = new Dimension(800, 200)
 
-  private val go: Button = new Button("Go")
-  private val back: Button = new Button("Back")
-  this.listenTo(this.go)
-  this.listenTo(this.back)
-  this.reactions += {
-    case ButtonClicked(`go`) => this.eventHandler.goPressed()
-    case ButtonClicked(`back`) => this.eventHandler.backPressed()
-  }
+  private val inputPanel = new BoxPanel(Orientation.Horizontal)
 
-  private val inputPanel = new BoxPanel(Orientation.Horizontal) {
-    this.contents += back
-    this.contents += new Label("input")
-    this.contents += input
-    this.contents += go
-  }
+  private val restart: Button = new Button("Restart")
+  this.listenTo(this.restart)
+  this.reactions += { case ButtonClicked(`restart`) => this.eventHandler.restartPressed() }
+  this.inputPanel.contents += this.restart
+
+  private val back: Button = new Button("Back")
+  this.listenTo(this.back)
+  this.reactions += { case ButtonClicked(`back`) => this.eventHandler.backPressed() }
+  this.inputPanel.contents += this.back
+
+  this.inputPanel.contents += new Label("input ")
+  this.inputPanel.contents += this.input
+
+  private val go: Button = new Button("Go")
+  this.listenTo(this.go)
+  this.reactions += { case ButtonClicked(`go`) => this.eventHandler.goPressed() }
+  this.inputPanel.contents += this.go
 
   this.contents = new BorderPanel {
     this.add(new ScrollPane(output), BorderPanel.Position.Center)
@@ -27,9 +31,7 @@ class CLIFrame(input: TextField, output: TextArea, eventHandler: WindowEventHand
     this.border = Swing.EmptyBorder(10, 10, 10, 10)
 
     this.listenTo(this.keys)
-    this.reactions += {
-      case KeyReleased(_, Key.Escape, _, _) => eventHandler.backPressed()
-    }
+    this.reactions += { case KeyPressed(_, Key.Escape, _, _) => eventHandler.backPressed() }
   }
 
   this.input.requestFocusInWindow()
@@ -58,6 +60,7 @@ class ProblemTreeFrame(textArea: TextArea) extends Frame {
 trait WindowEventHandler {
   def goPressed(): Unit
   def backPressed(): Unit
+  def restartPressed(): Unit
 }
 
 class MacLogicUi(eventHandler: WindowEventHandler) {
@@ -77,6 +80,15 @@ class MacLogicUi(eventHandler: WindowEventHandler) {
     this.problemTreeFrame.visible = true
     this.cli.visible = true
   }
+
+  def clear(): Unit = {
+    this.currentProblemTextArea.text = ""
+    this.problemTreeArea.text = ""
+  }
+
+  def logToConsole(str: String): Unit = this.output.text += str + "\n"
+
+  def clearConsole(): Unit = this.output.text = ""
 }
 
 object MacLogic2 extends App {
@@ -92,35 +104,41 @@ object WindowedController extends WindowEventHandler {
     val input = this.ui.input.text
     this.ui.input.text = ""
     this.modeHistory = this.currentMode +: this.modeHistory
-    this.currentMode = this.handleNextModeOnInput(input)
-    this.logToConsole(this.currentMode.output)
-    this.currentMode.updateUi(this.ui)
+    this.setCurrentMode(this.handleNextModeOnInput(input))
   }
 
   def start(): Unit = {
     this.ui.start()
-    this.logToConsole(this.currentMode.output)
+    this.ui.logToConsole(this.currentMode.output)
   }
 
   override def backPressed(): Unit = {
     if (this.modeHistory.isEmpty)
-      this.logToConsole("Can't go back any further")
+      this.ui.logToConsole("Can't go back any further")
     else {
-      this.logToConsole("Backtracking")
-      this.currentMode = this.modeHistory.head
-      this.logToConsole(this.currentMode.output)
-      this.currentMode.updateUi(this.ui)
+      this.ui.logToConsole("Backtracking")
+      this.setCurrentMode(this.modeHistory.head)
       this.modeHistory = this.modeHistory.tail
     }
   }
 
-  private def handleNextModeOnInput(str: String): CLIMode = this.currentMode.next(str) match {
-    case CLIError(message, nextMode) => {
-      this.logToConsole(message)
-      nextMode
-    }
-    case other => other
+  override def restartPressed(): Unit = {
+    this.ui.clear()
+    this.ui.clearConsole()
+    this.modeHistory = Seq.empty
+    this.setCurrentMode(CLIExpectPremises)
   }
 
-  def logToConsole(str: String): Unit = this.ui.output.text += str + "\n"
+  private def setCurrentMode(mode: CLIMode): Unit = {
+    this.currentMode = mode
+    this.ui.logToConsole(this.currentMode.output)
+    this.currentMode.updateUi(this.ui)
+  }
+
+  private def handleNextModeOnInput(str: String): CLIMode = this.currentMode.next(str) match {
+    case CLIError(message, nextMode) =>
+      this.ui.logToConsole(message)
+      nextMode
+    case other => other
+  }
 }

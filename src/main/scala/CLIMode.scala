@@ -34,10 +34,7 @@ case object CLIExpectPremises extends CLIMode {
     }
   }
 
-  override def updateUi(ui: MacLogicUi): Unit = {
-    ui.problemTreeArea.text = ""
-    ui.currentProblemTextArea.text = ""
-  }
+  override def updateUi(ui: MacLogicUi): Unit = ui.clear()
 
   override def prompt: String = "premises: "
 
@@ -54,10 +51,7 @@ case class CLIExpectConclusion(premises: List[Expr]) extends CLIMode {
       case Right(conclusion) => CLIExpectTactic(OngoingProof.start(Sequent(this.premises, conclusion)))
     }
 
-  override def updateUi(ui: MacLogicUi): Unit = {
-    ui.currentProblemTextArea.text = ""
-    ui.problemTreeArea.text = ""
-  }
+  override def updateUi(ui: MacLogicUi): Unit = ui.clear()
 
   override def prompt: String = "conclusion: "
 
@@ -123,12 +117,14 @@ case class CLIExpectExpr(proof: Proof, tactic: Tactic) extends CLIMode {
 
 // Represents the final mode of a CLI.
 case class CLIFinished(proof: FinishedProof) extends CLIMode {
-  override def next(input: String): CLIMode = throw new UnsupportedOperationException("CLIQuit does not have a next")
+  override def next(input: String): CLIMode = this
 
   override def prompt: String = throw new UnsupportedOperationException("CLIQuit cannot be prompted")
 
-  override def updateUi(ui: MacLogicUi): Unit =
+  override def updateUi(ui: MacLogicUi): Unit = {
     ui.problemTreeArea.text = ProofToString.derivationToString(this.proof)
+    ui.currentProblemTextArea.text = "Finished"
+  }
 
-  override def output: String = ProofToString.convert(this.proof)
+  override def output: String = "Finished"
 }
