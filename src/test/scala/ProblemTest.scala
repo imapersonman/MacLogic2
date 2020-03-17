@@ -125,12 +125,6 @@ class ProblemTest extends FunSuite {
     assert(ProblemExamples.postOrIRightProblem1 == ProblemExamples.preOrIProblem1.useTactic(OrIRight, Or(A, B)))
     assert(ProblemExamples.postOrIRightProblem2 == ProblemExamples.preOrIProblem2.useTactic(OrIRight, Or(A, B)))
     assert(ProblemExamples.postOrIRightProblem3 == ProblemExamples.preOrIProblem3.useTactic(OrIRight, Or(A, B)))
-    assert(
-      ProblemExamples.postOrILeftWrongConnectiveError ==
-      OpenProblem(SequentExamples.preAndISequent1).useTactic(OrILeft, And(A, B)))
-    assert(
-      ProblemExamples.postOrIRightWrongConnectiveErrorProblem ==
-      OpenProblem(SequentExamples.preAndISequent1).useTactic(OrIRight, And(A, B)))
   }
 
   test("Problem.useTactic \\/E") {

@@ -27,6 +27,11 @@ sealed trait Proof {
   }
 }
 
+object Proof {
+  // Creates a new Proof whose only Problem is an OpenProblem whose sequent is goal.
+  def start(goal: Sequent): OngoingProof = OngoingProof(OpenProblem(goal))
+}
+
 // Represents a Proof that has not yet been completed, i.e. still has OpenProblems somewhere in its Problem.
 case class OngoingProof(problem: Problem, selectorStack: ProblemSelectorStack) extends Proof {
   def useTactic(tactic: Tactic, expr: Expr): Proof = this.selectorStack match {
@@ -68,11 +73,7 @@ case class OngoingProof(problem: Problem, selectorStack: ProblemSelectorStack) e
 }
 
 object OngoingProof {
-  def apply(problem: Problem): OngoingProof =
-    OngoingProof(problem, ProblemSelectorStack(EmptyProblemSelector))
-
-  // Creates a new Proof whose only Problem is an OpenProblem whose sequent is goal.
-  def start(goal: Sequent): OngoingProof = OngoingProof(OpenProblem(goal))
+  def apply(problem: Problem): OngoingProof = OngoingProof(problem, ProblemSelectorStack(EmptyProblemSelector))
 }
 
 // Represents a Proof in which an Error occurred.

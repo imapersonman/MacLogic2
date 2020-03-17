@@ -85,10 +85,10 @@ object AndE extends EliminationTactic {
 object OrILeft extends IntroductionTactic {
   override protected def applySub(source: Sequent, expr: Expr): ProblemOrError = expr match {
     case Or(lhs, _) => SplitProblem(source, OrILeft, expr, Seq(OpenProblem(source.replaceRhs(lhs))))
-    case _ => Error("Main connective of \u2228Il Expr must be \u2228")
+    case _ => Error("Main connective of \u2228I_left Expr must be \u2228")
   }
 
-  override def toString: String = "\u2228Il"
+  override def toString: String = "\u2228I_left"
 }
 
 //  *L |- A \/ B
@@ -100,7 +100,7 @@ object OrIRight extends IntroductionTactic {
     case _ => Error("Main connective of \u2228Ir Expr must be \u2228")
   }
 
-  override def toString: String = "\u2228Ir"
+  override def toString: String = "\u2228I_right"
 }
 
 //  *L, A \/ B |- *R

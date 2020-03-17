@@ -10,7 +10,7 @@ class CLIModeTest extends FunSuite {
   private val expectConclusionABC = CLIExpectConclusion(List(A, B, C))
 
   private val goalAandB = Sequent(Seq(And(A, B)), A)
-  private val proofStart = OngoingProof.start(goalAandB)
+  private val proofStart = Proof.start(goalAandB)
 
   test("CLIExpectPremises.next") {
     assert(CLIExpectPremises.next("") == expectConclusionEmpty)

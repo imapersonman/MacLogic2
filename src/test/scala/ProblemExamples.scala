@@ -45,8 +45,6 @@ object ProblemExamples {
     OpenProblem(SequentExamples.postOrIRightSequent2)))
   val postOrIRightProblem3: Problem = SplitProblem(SequentExamples.preOrISequent3, OrIRight, Or(A, B), Seq(
     OpenProblem(SequentExamples.postOrIRightSequent3)))
-  val postOrILeftWrongConnectiveError: Error = Error("Main connective of \u2228Il Expr must be \u2228")
-  val postOrIRightWrongConnectiveErrorProblem: Error = Error("Main connective of \u2228Ir Expr must be \u2228")
 
   val preOrEProblem1: Problem = OpenProblem(SequentExamples.preOrESequent1)
   val preOrEProblem2: Problem = OpenProblem(SequentExamples.preOrESequent2)

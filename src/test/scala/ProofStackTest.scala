@@ -28,7 +28,7 @@ class ProofStackTest extends FunSuite {
     val psStack1 = ProblemSelectorStack(ProblemSelector())
     val sequent0 = Sequent(Seq(And(A, B)), And(B, A))
     val problem1 = OpenProblem(sequent0)
-    val proof1 = OngoingProof.start(sequent0)
+    val proof1 = Proof.start(sequent0)
     assert(proof1 == OngoingProof(problem1, psStack1))
 
     val psStack2 = ProblemSelectorStack(ProblemSelector(0), ProblemSelector(1))
@@ -115,7 +115,7 @@ class ProofStackTest extends FunSuite {
   }
 
   def finishedProofProblemShouldEqual(goal: Sequent, script: Seq[(Tactic, Expr)], expected: Problem): Unit = {
-    var proof: Proof = OngoingProof.start(goal)
+    var proof: Proof = Proof.start(goal)
     for (line <- script) proof = proof.useTactic(line._1, line._2)
     proof match {
       case OngoingProof(actual, _) => assert(expected == actual)

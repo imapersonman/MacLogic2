@@ -1,6 +1,12 @@
+import scala.util.Try
 import scala.util.parsing.combinator.RegexParsers
 
-object ExprParser extends RegexParsers {
+trait CstParser[GenericExpr <: Expr] {
+  def parseExpr(input: String): Try[GenericExpr]
+  def parseExprSeq(input: String): Try[Seq[GenericExpr]]
+}
+
+object ExprParser extends RegexParsers with CstParser[Expr] {
   def sl: Parser[SL] = """[A-Z]+""".r ^^ { id => SL(id) }
   def not: Parser[Expr] = ("~" | "-") ~ factor ^^ { case _ ~ expr => Not(expr) }
   def absurd: Parser[Expr] = ("Absurd" | "\\F") ^^ (_ => Absurd)
@@ -15,15 +21,15 @@ object ExprParser extends RegexParsers {
   private def makeBinOp(opString: String, constructor: (Expr, Expr) => Expr): Parser[Expr] =
     (factor ~ opString ~ factor) ^^ { case lhs ~ _ ~ rhs => constructor(lhs, rhs) }
 
-  def parseList(input: String): Either[ParserError, List[Expr]] = parse(exprList, input) match {
-    case Success(result, _) => Right(result)
-    case NoSuccess(msg, _) => Left(ParserError(msg))
+  override def parseExprSeq(input: String): Try[Seq[Expr]] = parse(exprList, input) match {
+    case Success(result, _) => scala.util.Success(result)
+    case NoSuccess(msg, _) => scala.util.Failure(new IllegalArgumentException(msg))
   }
 
-  def parse(input: String): Either[ParserError, Expr] = parse(expression, input) match {
-    case Success(result, _) => Right(result)
-    case NoSuccess(msg, _) => Left(ParserError(msg))
+  override def parseExpr(input: String): Try[Expr] = parse(expression, input) match {
+    case Success(result, _) => scala.util.Success(result)
+    case NoSuccess(msg, _) => scala.util.Failure(new IllegalArgumentException(msg))
   }
 }
 
-case class ParserError(message: String)
+//case class ParserError(message: String)

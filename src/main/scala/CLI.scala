@@ -95,7 +95,7 @@ object WindowedController extends WindowEventHandler {
 
   def start(): Unit = {
     this.ui.start()
-    this.ui.logToConsole(this.currentMode.output)
+    this.setCurrentMode(this.currentMode)
   }
 
   override def goPressed(): Unit = {
@@ -124,7 +124,6 @@ object WindowedController extends WindowEventHandler {
 
   private def setCurrentMode(mode: CLIMode): Unit = {
     this.currentMode = mode
-    this.ui.logToConsole(this.currentMode.output)
     this.currentMode.updateUi(this.ui)
   }
 

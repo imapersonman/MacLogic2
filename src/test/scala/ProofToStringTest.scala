@@ -7,7 +7,7 @@ class ProofToStringTest extends FunSuite {
 
   test("ProofToString derivationToString and currentProblemToString") {
     val goal = Sequent(Seq(And(A, And(B, C))), And(C, And(B, A)))
-    val proof1 = OngoingProof.start(goal)
+    val proof1 = Proof.start(goal)
     assert(
       "?  (A & (B & C)) \u22A2 (C & (B & A)) is the current problem" ==
       ProofToString.derivationToString(proof1))
