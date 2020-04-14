@@ -57,6 +57,9 @@ trait WindowEventHandler {
 }
 
 class MacLogicUi(eventHandler: WindowEventHandler) {
+  val FONT_SIZE: Int = 24
+  val FONT: Font = Font("Arial", Font.Style.Plain, FONT_SIZE)
+
   val input: TextField = new TextField()
   val output: TextArea = new TextArea { rows = 5; lineWrap = true; wordWrap = true }
 
@@ -67,6 +70,11 @@ class MacLogicUi(eventHandler: WindowEventHandler) {
 
   val problemTreeArea: TextArea = new TextArea { rows = 20; lineWrap = true; wordWrap = true }
   val problemTreeFrame = new ProblemTreeFrame(this.problemTreeArea)
+
+  this.input.font = FONT
+  this.output.font = FONT
+  this.currentProblemTextArea.font = FONT
+  this.problemTreeArea.font = FONT
 
   def start(): Unit = {
     this.currentProblemFrame.visible = true

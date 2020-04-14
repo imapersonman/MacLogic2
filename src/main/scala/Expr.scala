@@ -5,11 +5,11 @@ case class SL(id: String) extends Expr {
 }
 
 case class Not(expr: Expr) extends Expr {
-  override def toString: String = "(~ " + this.expr.toString + ")"
+  override def toString: String = "\u00ac" + this.expr.toString
 }
 
 case class And(lhs: Expr, rhs: Expr) extends Expr {
-  override def toString: String = "(" + this.lhs.toString + " & " + this.rhs.toString + ")"
+  override def toString: String = "(" + this.lhs.toString + " \u2227 " + this.rhs.toString + ")"
 }
 
 case class Or(lhs: Expr, rhs: Expr) extends Expr {
