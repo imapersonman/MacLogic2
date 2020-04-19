@@ -1,5 +1,5 @@
 import scala.swing._
-import scala.swing.event.{ButtonClicked, Key, KeyPressed}
+import scala.swing.event.ButtonClicked
 
 class CLIFrame(input: TextField, output: TextArea, eventHandler: WindowEventHandler) extends Frame {
   this.title = "MacLogic2 Command-Line"
