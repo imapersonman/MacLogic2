@@ -6,28 +6,27 @@ class CLIFrame(input: TextField, output: TextArea, eventHandler: WindowEventHand
   this.preferredSize = new Dimension(800, 200)
 
   private val inputPanel = new BoxPanel(Orientation.Horizontal)
-  this.addButtonToInputPanel("Restart", _ => this.eventHandler.restartPressed())
-  this.addButtonToInputPanel("Back", _ => this.eventHandler.backPressed())
+  this.addButton("Restart", inputPanel)
+  this.addButton("Back", inputPanel)
   this.inputPanel.contents += this.input
-  this.defaultButton = this.addButtonToInputPanel("Go", _ => this.eventHandler.goPressed())
+  this.defaultButton = this.addButton("Go", inputPanel)
 
   this.contents = new BorderPanel {
     this.add(new ScrollPane(output), BorderPanel.Position.Center)
     this.add(inputPanel, BorderPanel.Position.South)
     this.border = Swing.EmptyBorder(10, 10, 10, 10)
-
     this.listenTo(this.keys)
-    this.reactions += { case KeyPressed(_, Key.Escape, _, _) => eventHandler.backPressed() }
+    this.reactions += { case KeyPressed(_, Key.Escape, _, _) => eventHandler.handleEvent("Back") }
   }
 
   this.input.requestFocusInWindow()
   this.output.editable = false
 
-  def addButtonToInputPanel(name: String, effect: Unit => Unit): Button = {
+  def addButton(name: String, panel: BoxPanel): Button = {
     val button = new Button(name)
     this.listenTo(button)
-    this.reactions += { case ButtonClicked(`button`) => effect.apply() }
-    this.inputPanel.contents += button
+    this.reactions += { case ButtonClicked(`button`) => eventHandler.handleEvent(name) }
+    panel.contents += button
     button
   }
 }
@@ -48,12 +47,6 @@ class ProblemTreeFrame(textArea: TextArea) extends Frame {
   this.contents = new ScrollPane(this.textArea)
   this.textArea.border = Swing.EmptyBorder(10, 10, 10, 10)
   this.textArea.editable = false
-}
-
-trait WindowEventHandler {
-  def goPressed(): Unit
-  def backPressed(): Unit
-  def restartPressed(): Unit
 }
 
 class MacLogicUi(eventHandler: WindowEventHandler) {
@@ -92,51 +85,3 @@ class MacLogicUi(eventHandler: WindowEventHandler) {
   def clearConsole(): Unit = this.output.text = ""
 }
 
-object MacLogic2 extends App {
-  WindowedController.start()
-}
-
-class MacLogicStringSpecification {
-  val tacticSpec: TacticsSpecification = DefaultTacticsSpecification
-  val exprSpec: ExprSpecification[Prop] = DefaultExprSpecification
-  val seqSpec: SequentSpecification = SequentSpecification(exprSpec)
-  val proofSpec: ProofSpecification = ProofToString(tacticSpec, exprSpec, seqSpec)
-}
-
-object WindowedController extends WindowEventHandler {
-  private val spec = new MacLogicStringSpecification()
-  private var modeHistory: Seq[CLIMode] = Seq.empty
-  private var currentMode: CLIMode = CLIExpectPremises
-  private val ui = new MacLogicUi(this)
-
-  def start(): Unit = {
-    this.ui.start()
-    this.currentMode = this.currentMode.start(this.ui, this.spec)
-  }
-
-  override def goPressed(): Unit = {
-    this.modeHistory = this.currentMode +: this.modeHistory
-    this.setCurrentMode(this.currentMode.update(this.ui, this.spec))
-  }
-
-  override def backPressed(): Unit = {
-    if (this.modeHistory.isEmpty)
-      this.ui.logToConsole("Can't go back any further")
-    else {
-      this.ui.logToConsole("Backtracking")
-      this.setCurrentMode(this.modeHistory.head)
-      this.modeHistory = this.modeHistory.tail
-    }
-  }
-
-  override def restartPressed(): Unit = {
-    this.ui.clear()
-    this.ui.clearConsole()
-    this.modeHistory = Seq.empty
-    this.currentMode = CLIExpectPremises
-  }
-
-  private def setCurrentMode(mode: CLIMode): Unit = {
-    this.currentMode = mode.start(this.ui, this.spec)
-  }
-}
