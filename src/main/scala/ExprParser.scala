@@ -4,6 +4,7 @@ object ExprParser extends RegexParsers {
   def notC: Parser[String] = "~" | "-" | "\u00ac"
   def andC: Parser[String] = "&" | "/\\" | "\u2227"
   def impC: Parser[String] = "->" | "\u2192"
+  def iffC: Parser[String] = "<->" | "\u2194"
   def orC: Parser[String]  = "\\/" | "\u2228"
 
   def sl: Parser[SL] = """[A-Z]+""".r ^^ { id => SL(id) }
@@ -13,7 +14,8 @@ object ExprParser extends RegexParsers {
   def not: Parser[Prop] = notC ~ factor ^^ { case _ ~ expr => Not(expr) }
   def binOp: Parser[Prop] = makeBinOp(andC, (lhs, rhs) => And(lhs, rhs)) |
       makeBinOp(orC, (lhs, rhs) => Or(lhs, rhs)) |
-      makeBinOp(impC, (lhs, rhs) => Imp(lhs, rhs))
+      makeBinOp(impC, (lhs, rhs) => Imp(lhs, rhs)) |
+      makeBinOp(iffC, (lhs, rhs) => Iff(lhs, rhs))
   def expression: Parser[Prop] = binOp | factor
   def exprList: Parser[List[Prop]] = (expression ~ ",".?).* ^^ { _.map(_._1) }
 

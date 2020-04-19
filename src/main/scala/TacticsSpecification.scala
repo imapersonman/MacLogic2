@@ -6,11 +6,13 @@ case class TacticsSpecification(tactics: Seq[Tactic],
 
 object DefaultTacticsSpecification extends TacticsSpecification(
   // List of Tactics
-  Seq(AndI, AndE, ImpI, ImpE, NotI, NotE, OrILeft, OrIRight, DN, EFQ, Close),
+  Seq(AndI, AndE, IffI, IffE, ImpI, ImpE, NotI, NotE, OrILeft, OrIRight, DN, EFQ, Close),
   // Tactic Parser
   {
-    case "\u2192" | "->I" => Success(ImpI)
-    case "\u2192" | "->E" => Success(ImpE)
+    case "\u2192I" | "->I" => Success(ImpI)
+    case "\u2192E" | "->E" => Success(ImpE)
+    case "\u2194I" | "<->I" => Success(IffI)
+    case "\u2194E" | "<->E" => Success(IffE)
     case "\u00acI" | "~I" | "-I" => Success(NotI)
     case "\u00acE" | "~E" | "-E" => Success(NotE)
     case "\u2227I" | "/\\I" | "&I" => Success(AndI)
@@ -27,6 +29,8 @@ object DefaultTacticsSpecification extends TacticsSpecification(
   {
     case AndI => "\u2227I"
     case AndE => "\u2227E"
+    case IffI => "\u2194I"
+    case IffE => "\u2194E"
     case ImpI => "\u2192I"
     case ImpE => "\u2192E"
     case NotI => "\u00acI"

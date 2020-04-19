@@ -92,6 +92,30 @@ object AndE extends EliminationTactic {
   override def toString: String = "\u2227E"
 }
 
+//  *L |- A <-> B
+// -------------------------------
+//  *L |- A -> B     *L |- B -> A
+object IffI extends IntroductionTactic {
+  override protected def applySub(source: Sequent, expr: Prop): ProblemOrError = expr match {
+    case Iff(lhs, rhs) => SplitProblem(source, IffI, expr, Seq(
+      OpenProblem(source.replaceRhs(Imp(lhs, rhs))),
+      OpenProblem(source.replaceRhs(Imp(rhs, lhs)))))
+    case _ => Error("(IffI not applied correctly) make error handling better!")
+  }
+}
+
+//  *L, A & B |- *R
+// -----------------
+//  *L, A, B |- *R
+object IffE extends EliminationTactic {
+  override protected def applySub(source: Sequent, expr: Prop): ProblemOrError = expr match {
+    case Iff(lhs, rhs) => SplitProblem(source, IffE, expr, Seq(
+        OpenProblem(source.removeFromLhs(expr).addToLhs(Imp(lhs, rhs), Imp(rhs, lhs)))))
+    case _ => Error("(IffE not applied correctly) make error handling better!")
+  }
+}
+
+
 //  *L |- A \/ B
 // --------------
 //  *L, A |- A

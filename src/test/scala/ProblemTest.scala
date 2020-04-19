@@ -185,6 +185,26 @@ class ProblemTest extends FunSuite {
     assert(postEFQProblem1 == preEFQProblem1.useTactic(EFQ, B))
   }
 
+  test("Problem.useTactic IffI") {
+    val preIffISequent1 = Sequent(Seq(A, B), Iff(A, B))
+    val preIffIProblem1 = OpenProblem(preIffISequent1)
+    val postIffISequent1_1 = Sequent(Seq(A, B), Imp(A, B))
+    val postIffISequent1_2 = Sequent(Seq(A, B), Imp(B, A))
+    val postIffIProblem1 = SplitProblem(preIffISequent1, IffI, Iff(A, B), Seq(
+      OpenProblem(postIffISequent1_1),
+      OpenProblem(postIffISequent1_2)))
+    assert(preIffIProblem1.useTactic(IffI, Iff(A, B)) == postIffIProblem1)
+  }
+
+  test("Problem.useTactic IffE") {
+    val preIffESequent1 = Sequent(Seq(A, Iff(A, B), B), A)
+    val preIffEProblem1 = OpenProblem(preIffESequent1)
+    val postIffESequent1 = Sequent(Seq(Imp(A, B), Imp(B, A), A, B), A)
+    val postIffEProblem1 = SplitProblem(preIffESequent1, IffE, Iff(A, B), Seq(
+      OpenProblem(postIffESequent1)))
+    assert(preIffEProblem1.useTactic(IffE, Iff(A, B)) == postIffEProblem1)
+  }
+
   test("Problem.useTactic DN") {
     val preDNSequent1 = Sequent(Seq(), A)
     val preDNSequent2 = Sequent(Seq(B), Not(A))

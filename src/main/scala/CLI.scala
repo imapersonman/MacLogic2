@@ -124,7 +124,7 @@ object WindowedController extends WindowEventHandler {
       this.ui.logToConsole("Can't go back any further")
     else {
       this.ui.logToConsole("Backtracking")
-      this.currentMode = this.modeHistory.head
+      this.setCurrentMode(this.modeHistory.head)
       this.modeHistory = this.modeHistory.tail
     }
   }

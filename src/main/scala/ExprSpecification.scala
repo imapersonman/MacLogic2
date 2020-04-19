@@ -17,6 +17,7 @@ object DefaultExprSpecification extends ExprSpecification[Prop]() {
     case And(lhs, rhs) => "(" + print(lhs) + "∧" + print(rhs) + ")"
     case Or(lhs, rhs) => "(" + print(lhs) + "∨" + print(rhs) + ")"
     case Imp(lhs, rhs) => "(" + print(lhs) + "→" + print(rhs) + ")"
+    case Iff(lhs, rhs) => "(" + print(lhs) + "↔" + print(rhs) + ")"
     case Absurd => "⊥"
   }
 }

@@ -12,4 +12,6 @@ case class Or(lhs: Prop, rhs: Prop) extends Prop
 
 case class Imp(lhs: Prop, rhs: Prop) extends Prop
 
+case class Iff(lhs: Prop, rhs: Prop) extends Prop
+
 case object Absurd extends Prop
