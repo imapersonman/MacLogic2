@@ -96,21 +96,27 @@ object MacLogic2 extends App {
   WindowedController.start()
 }
 
+class MacLogicStringSpecification {
+  val tacticSpec: TacticsSpecification = DefaultTacticsSpecification
+  val exprSpec: ExprSpecification[Prop] = DefaultExprSpecification
+  val seqSpec: SequentSpecification = SequentSpecification(exprSpec)
+  val proofSpec: ProofSpecification = ProofToString(tacticSpec, exprSpec, seqSpec)
+}
+
 object WindowedController extends WindowEventHandler {
+  private val spec = new MacLogicStringSpecification()
   private var modeHistory: Seq[CLIMode] = Seq.empty
   private var currentMode: CLIMode = CLIExpectPremises
   private val ui = new MacLogicUi(this)
 
   def start(): Unit = {
     this.ui.start()
-    this.ui.logToConsole(this.currentMode.output)
+    this.currentMode = this.currentMode.start(this.ui, this.spec)
   }
 
   override def goPressed(): Unit = {
-    val input = this.ui.input.text
-    this.ui.input.text = ""
     this.modeHistory = this.currentMode +: this.modeHistory
-    this.setCurrentMode(this.handleNextModeOnInput(input))
+    this.setCurrentMode(this.currentMode.update(this.ui, this.spec))
   }
 
   override def backPressed(): Unit = {
@@ -118,7 +124,7 @@ object WindowedController extends WindowEventHandler {
       this.ui.logToConsole("Can't go back any further")
     else {
       this.ui.logToConsole("Backtracking")
-      this.setCurrentMode(this.modeHistory.head)
+      this.currentMode = this.modeHistory.head
       this.modeHistory = this.modeHistory.tail
     }
   }
@@ -127,19 +133,10 @@ object WindowedController extends WindowEventHandler {
     this.ui.clear()
     this.ui.clearConsole()
     this.modeHistory = Seq.empty
-    this.setCurrentMode(CLIExpectPremises)
+    this.currentMode = CLIExpectPremises
   }
 
   private def setCurrentMode(mode: CLIMode): Unit = {
-    this.currentMode = mode
-    this.ui.logToConsole(this.currentMode.output)
-    this.currentMode.updateUi(this.ui)
-  }
-
-  private def handleNextModeOnInput(str: String): CLIMode = this.currentMode.next(str) match {
-    case CLIError(message, nextMode) =>
-      this.ui.logToConsole(message)
-      nextMode
-    case other => other
+    this.currentMode = mode.start(this.ui, this.spec)
   }
 }

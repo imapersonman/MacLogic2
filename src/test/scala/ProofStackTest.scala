@@ -114,7 +114,7 @@ class ProofStackTest extends FunSuite {
       ProblemExamples.finalProblem3)
   }
 
-  def finishedProofProblemShouldEqual(goal: Sequent, script: Seq[(Tactic, Expr)], expected: Problem): Unit = {
+  def finishedProofProblemShouldEqual(goal: Sequent, script: Seq[(Tactic, Prop)], expected: Problem): Unit = {
     var proof: Proof = OngoingProof.start(goal)
     for (line <- script) proof = proof.useTactic(line._1, line._2)
     proof match {

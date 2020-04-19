@@ -1,7 +1,7 @@
 object SequentExamples {
-  val A: Expr = SL("A")
-  val B: Expr = SL("B")
-  val C: Expr = SL("C")
+  val A: Prop = SL("A")
+  val B: Prop = SL("B")
+  val C: Prop = SL("C")
 
   val preAndISequent1: Sequent = Sequent(Seq(), And(A, B))
   val preAndISequent2: Sequent = Sequent(Seq(C), And(A, B))

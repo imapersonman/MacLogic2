@@ -1,21 +1,18 @@
-object ProofToString {
+case class ProofToString(ts: TacticsSpecification,
+                         es: ExprSpecification[Prop],
+                         seqSpec: SequentSpecification) extends ProofSpecification {
   def convert(proof: Proof): String =
-    this.derivationToString(proof) + "\n\n" + this.currentProblemToString(proof)
+    this.derivationToString(proof) + "\n\n" + this.currentProblemToString(proof.currentProblem)
 
   // Creates a String representation of the current Problem in the MacLogic style.
-  def currentProblemToString(derivation: Proof): String = derivation match {
-    case OngoingProof(problem, selectorStack) =>
-      val selector = selectorStack.peek
-      val currentProblem = problem.select(selector)
-      val lhsString = currentProblem.sequent.lhs.foldLeft("")((acc, expr) => acc + "\n" + expr.toString)
-      val rhsString = currentProblem.sequent.rhs.toString
-      "Using:-" + lhsString + "\n\nDerive:-\n" + rhsString
-    case ErrorProof(error, proof) => error.toString
-    case FinishedProof(problem) => "Finished"
+  override def currentProblemToString(problem: Problem): String = {
+    val lhsString = problem.sequent.lhs.foldLeft("")((acc, expr) => acc + "\n" + this.es.print(expr))
+    val rhsString = this.es.print(problem.sequent.rhs)
+    "Using:-" + lhsString + "\n\nDerive:-\n" + rhsString
   }
 
   @scala.annotation.tailrec
-  final def derivationToString(proof: Proof): String = proof match {
+  override final def derivationToString(proof: Proof): String = proof match {
     case OngoingProof(problem, selectorStack) =>
       this.problemToString(problem, selectorStack.peek, ProblemSelector(), "")
     case ErrorProof(_, proof) => this.derivationToString(proof)
@@ -33,16 +30,16 @@ object ProofToString {
                               dashString: String): String = {
     dashString + (problem match {
       case OpenProblem(sequent) => this.openProblemToString(sequent, currentSelector, selectorAcc)
-      case ClosedProblem(sequent) => "?  " + sequent.toString + "  \u25A0"
+      case ClosedProblem(sequent) => "?  " + this.seqSpec.print(sequent) + "  \u25A0"
       case SplitProblem(sequent, tactic, _, subProblems) =>
         val tacticString = this.tacticToString(tactic, dashString)
         val subProblemsString = this.subProblemsToString(subProblems, currentSelector, selectorAcc, dashString)
-        "?  " + sequent.toString + "\n-" + tacticString + "\n" + subProblemsString
+        "?  " + this.seqSpec.print(sequent) + "\n-" + tacticString + "\n" + subProblemsString
     })
   }
 
   private def openProblemToString(sequent: Sequent, currSel: ProblemSelector, selAcc: ProblemSelector): String =
-    "?  " + sequent.toString +
+    "?  " + this.seqSpec.print(sequent) +
       (if (selAcc == currSel)
         " is the current problem"
       else "")
@@ -59,5 +56,5 @@ object ProofToString {
         dashString + "-")).mkString("\n")
 
   private def tacticToString(tactic: Tactic, dashString: String): String =
-    dashString + "Using tactic for " + tactic.toString
+    dashString + "Using tactic for " + this.ts.tacticPrinter(tactic)
 }

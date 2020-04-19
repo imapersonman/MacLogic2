@@ -8,7 +8,7 @@ case class Error(message: String) extends ProblemOrError
 // TODO: Rename to something other than Problem (Solution?  Proof?  Derivation?)
 sealed abstract class Problem(val sequent: Sequent) extends ProblemOrError {
   // Creates a new problem using the given Tactic and Expr.
-  def useTactic(tactic: Tactic, expr: Expr): ProblemOrError = this match {
+  def useTactic(tactic: Tactic, expr: Prop): ProblemOrError = this match {
     case OpenProblem(sequent) => tactic.apply(sequent, expr)
     case ClosedProblem(_) => Error("Cannot use tactic on a ClosedProblem")
     case SplitProblem(_, _, _, _) => Error("Cannot use tactic on a SplitProblem")
@@ -61,5 +61,5 @@ case class OpenProblem(override val sequent: Sequent) extends Problem(sequent)
 case class ClosedProblem(override val sequent: Sequent) extends Problem(sequent)
 
 // Represents a Problem that has been split up into more than one sub-Problem.
-case class SplitProblem(override val sequent: Sequent, tactic: Tactic, expr: Expr, subProblems: Seq[Problem])
+case class SplitProblem(override val sequent: Sequent, tactic: Tactic, expr: Prop, subProblems: Seq[Problem])
   extends Problem(sequent)

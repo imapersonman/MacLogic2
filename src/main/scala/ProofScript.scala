@@ -6,7 +6,7 @@ object ProofScript {
 }
 
 // Represents the line of a ProofScript.
-case class Line(dependencies: Seq[LineRef], ref: LineRef, derived: Expr, reason: Reason)
+case class Line(dependencies: Seq[LineRef], ref: LineRef, derived: Prop, reason: Reason)
 
 // Represents a reference associated with a Line in a ProofScript.
 case class LineRef(id: Int)

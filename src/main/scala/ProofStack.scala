@@ -1,7 +1,7 @@
 // Represents a Proof which keeps track of what sub-Problems are to be proved next.
 sealed trait Proof {
   // Uses the given Tactic with the given Expr on the current problem in this Proof.
-  def useTactic(tactic: Tactic, expr: Expr): Proof
+  def useTactic(tactic: Tactic, expr: Prop): Proof
 
   // Are all subProblems closed?
   def canClose: Boolean = this match {
@@ -29,7 +29,7 @@ sealed trait Proof {
 
 // Represents a Proof that has not yet been completed, i.e. still has OpenProblems somewhere in its Problem.
 case class OngoingProof(problem: Problem, selectorStack: ProblemSelectorStack) extends Proof {
-  def useTactic(tactic: Tactic, expr: Expr): Proof = this.selectorStack match {
+  def useTactic(tactic: Tactic, expr: Prop): Proof = this.selectorStack match {
     case EmptyProblemSelectorStack => throw new IllegalStateException("No current selector for open problem")
     case ConsProblemSelectorStack(first, rest) =>
       val currentProblem = this.problem.select(first)
@@ -77,12 +77,12 @@ object OngoingProof {
 
 // Represents a Proof in which an Error occurred.
 case class ErrorProof(error: Error, proof: OngoingProof) extends Proof {
-  override def useTactic(tactic: Tactic, expr: Expr): Proof = this.proof.useTactic(tactic, expr)
+  override def useTactic(tactic: Tactic, expr: Prop): Proof = this.proof.useTactic(tactic, expr)
 }
 
 // Represents a Proof whose Problems are either SplitProblems or ClosedProblems.
 case class FinishedProof(problem: Problem) extends Proof {
-  override def useTactic(tactic: Tactic, expr: Expr): Proof =
+  override def useTactic(tactic: Tactic, expr: Prop): Proof =
     throw new UnsupportedOperationException("Cannot use Tactic on a FinishedProof")
 }
 
