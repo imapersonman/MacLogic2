@@ -15,8 +15,6 @@ class CLIFrame(input: TextField, output: TextArea, eventHandler: WindowEventHand
     this.add(new ScrollPane(output), BorderPanel.Position.Center)
     this.add(inputPanel, BorderPanel.Position.South)
     this.border = Swing.EmptyBorder(10, 10, 10, 10)
-    this.listenTo(this.keys)
-    this.reactions += { case KeyPressed(_, Key.Escape, _, _) => eventHandler.handleEvent("Back") }
   }
 
   this.input.requestFocusInWindow()
